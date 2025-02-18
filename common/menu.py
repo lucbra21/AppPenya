@@ -1,35 +1,36 @@
 import streamlit as st
-import models.mysql as db
+import pandas as pd
+import os
 
 def generarMenu(usuario):
     """Genera el menú dependiendo del usuario
 
     Args:
         usuario (str): usuario utilizado para generar el menú
-    """
+    """        
     with st.sidebar:
-        # Consultar la base de datos MySQL para obtener el nombre del usuario
-        query = "SELECT nombre FROM usuarios WHERE usuario = %s"
-        params = (usuario,)
-        result = db.execute_query(query, params)
+        # Construir la ruta relativa al archivo usuarios.csv desde el archivo login.py
+        csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'usuarios.csv')
 
-        # Verificar si se encontró el usuario
-        if result:
-            nombre = result[0][0]  # Tomar el nombre del resultado de la consulta
-            # Mostrar el nombre del usuario
-            st.write(f"Hola **:blue-background[{nombre}]** ")
-        else:
-            st.error("Usuario no encontrado en la base de datos.")
+        # Convertir a ruta absoluta
+        csv_path = os.path.abspath(csv_path)
 
-        # Mostrar los enlaces de páginas
+        # Cargamos la tabla de usuarios
+        dfusuarios = pd.read_csv(csv_path)
+        # Filtramos la tabla de usuarios
+        dfUsuario =dfusuarios[(dfusuarios['usuario']==usuario)]
+        # Cargamos el nombre del usuario
+        nombre= dfUsuario['nombre'].values[0]
+        #Mostramos el nombre del usuario
+        st.write(f"Hola **:blue-background[{nombre}]** ")
+        # Mostramos los enlaces de páginas
         st.page_link("home.py", label="Home", icon=":material/home:")
         st.subheader("Tableros")
         st.page_link("pages/pagina1.py", label="Stats", icon=":material/sell:")
         st.page_link("pages/pagina2.py", label="Players", icon=":material/shopping_cart:")
-        st.page_link("pages/pagina3.py", label="Teams", icon=":material/group:")
-
+        st.page_link("pages/pagina3.py", label="Teams", icon=":material/group:")    
         # Botón para cerrar la sesión
-        btnSalir = st.button("Salir")
+        btnSalir=st.button("Salir")
         if btnSalir:
             st.session_state.clear()
             # Luego de borrar el Session State reiniciamos la app para mostrar la opción de usuario y clave

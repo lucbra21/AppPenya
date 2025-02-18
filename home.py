@@ -5,4 +5,3 @@ st.header('Página principal')
 login.generarLogin()
 if 'usuario' in st.session_state:
     st.subheader('Información página principal')
-    st.write('Conectado desde MySQL')
